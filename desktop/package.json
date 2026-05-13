@@ -4,9 +4,28 @@
   "main": "main.js",
   "scripts": {
     "dev": "electron .",
-    "build": "echo 'Use electron-builder as next step'"
+    "build": "electron-builder --win nsis"
   },
   "dependencies": {
     "electron": "^31.0.0"
+  },
+  "devDependencies": {
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.chatcodex.desktop",
+    "productName": "Chat Codex Desktop",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis"
+    }
   }
 }

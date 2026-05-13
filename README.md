@@ -1,29 +1,39 @@
-# Chat Codex Desktop
+# Chat Codex Desktop (Windows-ready)
 
-Desktop-приложение в стиле ChatGPT + функции код-ассистента (через OpenAI API), с логином через Google OAuth.
+Приложение с интерфейсом в стиле Codex: боковая панель, чат-область и composer для задач по коду.
 
-## Что внутри
-- `desktop/` — Electron клиент.
-- `backend/` — Node.js backend (Google OAuth + chat endpoint).
+## 1) Запуск в режиме разработки (Windows)
+Откройте 2 окна PowerShell.
 
-## Быстрый старт
-1. Создайте OAuth credentials в Google Cloud (Web app).
-2. Для backend callback укажите: `http://localhost:8787/auth/google/callback`.
-3. Скопируйте `.env.example` в `backend/.env` и заполните.
-4. Установите зависимости:
-   ```bash
-   npm install
-   ```
-5. Запустите backend:
-   ```bash
-   npm run dev -w backend
-   ```
-6. Запустите desktop:
-   ```bash
-   npm run dev -w desktop
-   ```
+### Окно 1 (backend)
+```powershell
+cd C:\path\to\cht
+copy .env.example backend\.env
+# заполните backend\.env своими ключами
+npm install
+npm run dev -w backend
+```
 
-## Что дальше
-- Добавить локальные tools (файлы/команды) для полноценного codex-режима.
-- Добавить хранение истории чатов в БД.
-- Сделать packaging (electron-builder) под Windows/macOS/Linux.
+### Окно 2 (desktop)
+```powershell
+cd C:\path\to\cht
+npm run dev -w desktop
+```
+
+## 2) Сборка .exe для Windows
+После `npm install` выполните:
+```powershell
+npm run build -w desktop
+```
+
+Готовый инсталлятор `.exe` появится в:
+- `desktop\dist\`
+
+## Важно по Google Login
+- В Google Cloud Console добавьте callback URL:
+  - `http://localhost:8787/auth/google/callback`
+- В `backend/.env` укажите:
+  - `GOOGLE_CLIENT_ID`
+  - `GOOGLE_CLIENT_SECRET`
+  - `OPENAI_API_KEY`
+  - `SESSION_SECRET`

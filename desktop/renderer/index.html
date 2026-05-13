@@ -1,75 +1,56 @@
 <!doctype html>
-<html>
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chat Codex Desktop</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #111827; color: #e5e7eb; }
-    header { display: flex; justify-content: space-between; padding: 12px 18px; background: #1f2937; }
-    #chat { height: calc(100vh - 130px); overflow: auto; padding: 16px; }
-    .msg { margin-bottom: 12px; padding: 10px; border-radius: 8px; }
-    .user { background: #374151; }
-    .assistant { background: #1d4ed8; }
-    footer { display: flex; gap: 8px; padding: 12px; background: #1f2937; }
-    input { flex: 1; padding: 10px; border-radius: 8px; border: 0; }
-    button { padding: 10px 14px; border: 0; border-radius: 8px; background: #2563eb; color: white; }
+    :root{--bg:#0b1020;--panel:#121a2d;--line:#28344f;--text:#e6edf7;--muted:#9fb0cc;--accent:#4f8cff;}
+    *{box-sizing:border-box} body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    .app{display:grid;grid-template-columns:260px 1fr;height:100vh}
+    .sidebar{background:#0e1628;border-right:1px solid var(--line);padding:14px;display:flex;flex-direction:column;gap:10px}
+    .logo{font-weight:700}.muted{color:var(--muted);font-size:12px}
+    .btn{border:1px solid var(--line);background:#18243f;color:var(--text);padding:9px 12px;border-radius:10px;cursor:pointer}
+    .btn.primary{background:var(--accent);border-color:var(--accent)}
+    .main{display:grid;grid-template-rows:auto 1fr auto}
+    .top{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+    #chat{padding:18px;overflow:auto;display:flex;flex-direction:column;gap:10px}
+    .msg{max-width:900px;padding:12px;border-radius:12px;line-height:1.45;white-space:pre-wrap}
+    .user{align-self:flex-end;background:#244176}.assistant{background:var(--panel);border:1px solid var(--line)}
+    .composer{border-top:1px solid var(--line);padding:12px;display:flex;gap:8px}
+    textarea{flex:1;background:#0d1527;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;min-height:64px}
   </style>
 </head>
 <body>
-  <header>
-    <div><b>Chat + Codex Desktop</b></div>
-    <div id="user">Not logged in</div>
-    <button id="loginBtn">Login via Google</button>
-  </header>
-
-  <div id="chat"></div>
-
-  <footer>
-    <input id="prompt" placeholder="Напиши задачу по коду..." />
-    <button id="send">Send</button>
-  </footer>
-
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">Codex-style Assistant</div>
+    <div class="muted">Desktop app for Windows</div>
+    <button id="loginBtn" class="btn primary">Войти через Google</button>
+    <button id="checkBtn" class="btn">Проверить вход</button>
+    <div class="muted">Пользователь:</div>
+    <div id="user">не авторизован</div>
+  </aside>
+  <section class="main">
+    <header class="top"><b>Чат + Кодекс режим</b><span class="muted">model: gpt-4.1-mini</span></header>
+    <main id="chat"></main>
+    <footer class="composer">
+      <textarea id="prompt" placeholder="Опиши задачу по коду, например: 'сделай рефакторинг функции login()'"></textarea>
+      <button id="send" class="btn primary">Отправить</button>
+    </footer>
+  </section>
+</div>
 <script>
-  const chatEl = document.getElementById('chat');
-  const userEl = document.getElementById('user');
-  const loginBtn = document.getElementById('loginBtn');
-  const promptEl = document.getElementById('prompt');
-  const sendBtn = document.getElementById('send');
-
-  const history = [];
-
-  function addMsg(role, text) {
-    const div = document.createElement('div');
-    div.className = `msg ${role}`;
-    div.textContent = text;
-    chatEl.appendChild(div);
-    chatEl.scrollTop = chatEl.scrollHeight;
-  }
-
-  async function refreshUser() {
-    const me = await window.appApi.getMe();
-    if (me.user) {
-      userEl.textContent = me.user.email || me.user.name;
-      loginBtn.style.display = 'none';
-    }
-  }
-
-  loginBtn.onclick = () => window.appApi.login();
-
-  sendBtn.onclick = async () => {
-    const text = promptEl.value.trim();
-    if (!text) return;
-    promptEl.value = '';
-    history.push({ role: 'user', content: text });
-    addMsg('user', text);
-
-    const res = await window.appApi.chat(history);
-    const output = res.output || res.error || 'No response';
-    history.push({ role: 'assistant', content: output });
-    addMsg('assistant', output);
-  };
-
-  refreshUser();
+const chatEl=document.getElementById('chat'),userEl=document.getElementById('user');
+const loginBtn=document.getElementById('loginBtn'),checkBtn=document.getElementById('checkBtn');
+const promptEl=document.getElementById('prompt'),sendBtn=document.getElementById('send');
+const history=[];
+function addMsg(role,text){const d=document.createElement('div');d.className='msg '+role;d.textContent=text;chatEl.appendChild(d);chatEl.scrollTop=chatEl.scrollHeight;}
+async function refreshUser(){const me=await window.appApi.getMe();userEl.textContent=me.user?(me.user.email||me.user.name):'не авторизован';}
+loginBtn.onclick=()=>window.appApi.login(); checkBtn.onclick=refreshUser;
+sendBtn.onclick=async()=>{const text=promptEl.value.trim(); if(!text)return; promptEl.value=''; history.push({role:'user',content:text}); addMsg('user',text);
+const res=await window.appApi.chat(history); const out=res.output||res.error||'No response'; history.push({role:'assistant',content:out}); addMsg('assistant',out);};
+refreshUser();
 </script>
 </body>
 </html>
