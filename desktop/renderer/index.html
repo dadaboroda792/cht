@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat Codex Desktop</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #111827; color: #e5e7eb; }
+    header { display: flex; justify-content: space-between; padding: 12px 18px; background: #1f2937; }
+    #chat { height: calc(100vh - 130px); overflow: auto; padding: 16px; }
+    .msg { margin-bottom: 12px; padding: 10px; border-radius: 8px; }
+    .user { background: #374151; }
+    .assistant { background: #1d4ed8; }
+    footer { display: flex; gap: 8px; padding: 12px; background: #1f2937; }
+    input { flex: 1; padding: 10px; border-radius: 8px; border: 0; }
+    button { padding: 10px 14px; border: 0; border-radius: 8px; background: #2563eb; color: white; }
+  </style>
+</head>
+<body>
+  <header>
+    <div><b>Chat + Codex Desktop</b></div>
+    <div id="user">Not logged in</div>
+    <button id="loginBtn">Login via Google</button>
+  </header>
+
+  <div id="chat"></div>
+
+  <footer>
+    <input id="prompt" placeholder="Напиши задачу по коду..." />
+    <button id="send">Send</button>
+  </footer>
+
+<script>
+  const chatEl = document.getElementById('chat');
+  const userEl = document.getElementById('user');
+  const loginBtn = document.getElementById('loginBtn');
+  const promptEl = document.getElementById('prompt');
+  const sendBtn = document.getElementById('send');
+
+  const history = [];
+
+  function addMsg(role, text) {
+    const div = document.createElement('div');
+    div.className = `msg ${role}`;
+    div.textContent = text;
+    chatEl.appendChild(div);
+    chatEl.scrollTop = chatEl.scrollHeight;
+  }
+
+  async function refreshUser() {
+    const me = await window.appApi.getMe();
+    if (me.user) {
+      userEl.textContent = me.user.email || me.user.name;
+      loginBtn.style.display = 'none';
+    }
+  }
+
+  loginBtn.onclick = () => window.appApi.login();
+
+  sendBtn.onclick = async () => {
+    const text = promptEl.value.trim();
+    if (!text) return;
+    promptEl.value = '';
+    history.push({ role: 'user', content: text });
+    addMsg('user', text);
+
+    const res = await window.appApi.chat(history);
+    const output = res.output || res.error || 'No response';
+    history.push({ role: 'assistant', content: output });
+    addMsg('assistant', output);
+  };
+
+  refreshUser();
+</script>
+</body>
+</html>
