@@ -1,0 +1,10 @@
+{
+  "name": "chat-codex-desktop",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": ["backend", "desktop"],
+  "scripts": {
+    "dev": "npm run dev -w backend & npm run dev -w desktop",
+    "build": "npm run build -w backend && npm run build -w desktop"
+  }
+}
